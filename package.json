@@ -1,0 +1,32 @@
+{
+  "name": "srcds-perfmon",
+  "version": "1.0.0",
+  "description": "A little utility to track the performance of a SRCDS server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OpenSourceLAN/srcds-perfmon.git"
+  },
+  "keywords": [
+    "srcds",
+    "performance",
+    "monitor",
+    "csgo",
+    "counter",
+    "strike"
+  ],
+  "author": "Chris Holman",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/OpenSourceLAN/srcds-perfmon/issues"
+  },
+  "homepage": "https://github.com/OpenSourceLAN/srcds-perfmon#readme",
+  "dependencies": {
+    "express": "^4.13.4",
+    "socket.io": "^1.4.6",
+    "srcds-rcon": "^2.2.1"
+  }
+}
