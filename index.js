@@ -3,7 +3,8 @@
 var express = require('express'),
 	http = require('http'),
 	rcon = require('srcds-rcon'),
-	socketio = require('socket.io');
+	socketio = require('socket.io'),
+	monitor = require('./perfmon');
 
 var app = express(),
     server = http.Server(app),
@@ -12,5 +13,9 @@ var app = express(),
 server.listen(9999);
 
 app.get('/', (req,res)=> {
-	res.sendfile(__dirname + '/static/index.html');
+	res.sendFile(__dirname + '/static/index.html');
+});
+
+io.on('connection', (socket) => {
+	// todo: send current state of world
 });
