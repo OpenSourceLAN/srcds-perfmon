@@ -3,7 +3,8 @@
 var express = require('express'),
 	http = require('http'),
 	socketio = require('socket.io'),
-	monitor = require('./perfmon');
+	monitor = require('./perfmon'),
+	config = require('./config.json');
 
 var app = express(),
     server = http.Server(app),
@@ -19,4 +20,10 @@ io.on('connection', (socket) => {
 	// todo: send current state of world
 });
 
-new monitor({address: "127.0.1.1", password: "dicks"});
+
+config.servers.forEach((server) => {
+	var serverMonitor = new monitor(server, config.defaultPollInterval);
+	serverMonitor.on("data", (data) => {
+		console.log(`Server ${server.address} returned info:`, data);
+	})
+})

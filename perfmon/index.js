@@ -15,6 +15,7 @@ var rcon = require('srcds-rcon'),
 
 class Perfmon extends events {
 	constructor(connectionInfo, pollInterval) {
+		super();
 		this.connectionInfo = connectionInfo;
 		this.pollInterval = pollInterval || 1;
 		this.interval = setInterval(this.doPoll.bind(this), this.pollInterval * 1000);
@@ -38,7 +39,7 @@ class Perfmon extends events {
 		var values = removeBlankArrayElements(lines[1].split(whitespaceSplitRegex));
 		var results = {};
 		for (var i = 0; i < headers.length; i++) {
-			results[headers[i]] = values[i];
+			results[headers[i]] = parseFloat(values[i]);
 		}
 		this.emit("data", results);
 	}
