@@ -17,13 +17,24 @@ app.get('/', (req,res)=> {
 });
 
 io.on('connection', (socket) => {
-	// todo: send current state of world
+	for (var server in recentServerInfo) {
+		socket.emit("update", server, recentServerInfo[server]);
+	}
 });
 
+var recentServerInfo = {};
+function pushNewServerStat(server, data) {
+	recentServerInfo[server] = recentServerInfo[server] || [];
+	recentServerInfo[server].splice(99);
+	recentServerInfo[server].splice(0,0, data);
+}
 
 config.servers.forEach((server) => {
 	var serverMonitor = new monitor(server, config.defaultPollInterval);
 	serverMonitor.on("data", (data) => {
 		console.log(`Server ${server.address} returned info:`, data);
+		data = {server: server.address, data: data, timestamp: new Date()};
+		io.sockets.emit("update", server.address, [data]);
+		pushNewServerStat(server.address, data);
 	})
 })
