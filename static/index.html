@@ -1,1 +1,91 @@
-Coming soon: a graph
+<html>
+<head>
+	<title>Some CSGO stats!</title>
+	<style type='text/css'>
+		#charts div {
+			float: left;
+			height: 400px;
+			width: 600px;
+			display: block;
+
+		}
+	</style>
+</head>
+
+<body>
+
+<div id="charts"></div>
+
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<script type='text/javascript' src="http://canvasjs.com/assets/script/canvasjs.min.js"></script>
+<script
+			  src="https://code.jquery.com/jquery-2.2.4.min.js"
+			  integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+			  crossorigin="anonymous"></script>
+<script type="text/javascript">
+var socket = io();
+var data = {};
+var receivedUpdate = false;
+
+var recentServerInfo = {};
+function pushNewServerStat(server, data) {
+	recentServerInfo[server] = recentServerInfo[server] || [];
+	recentServerInfo[server] = data.concat(recentServerInfo[server]);
+	recentServerInfo[server].splice(100);
+}
+
+socket.on("update", function(server, data) {
+	receivedUpdate = true;
+	pushNewServerStat(server, data);
+	//console.log(server, data);
+})
+
+function formatDataForGraph(data, property) {
+	//console.log(data);
+	return data.map(function(d) {
+		console.log(d);
+		return {x: new Date(d.timestamp), y: d.data[property] }
+	});
+}
+
+var sanitiser = /[\.:]/g;
+function getGraphId(name) {
+	return name.replace(sanitiser, "_");
+}
+
+setInterval(function() {
+	if (!receivedUpdate) {
+		return;
+	}
+	receivedUpdate = false;
+
+	var graphContainer = $("#charts");
+
+	for (var server in recentServerInfo) {
+		var id = getGraphId(server);
+
+		var graphDiv = graphContainer.children("#" + id);
+		if (graphDiv.length == 0) {
+			graphDiv = $("<div>", {id: id});
+			graphContainer.append(graphDiv);
+		}
+//console.log(formatDataForGraph(recentServerInfo[server], "~tick"));
+		var chart = new CanvasJS.Chart(id, {
+			title: { text: "Server " + server + " performance" },
+			data: [
+				{
+					type: "spline",
+					showInLegend: true,
+					dataPoints: formatDataForGraph(recentServerInfo[server], "~tick")
+				}
+			],
+			legend: {
+				cursor: "pointer",
+			}
+		});
+		chart.render();
+	}
+}, 1000);
+
+</script>
+</body></html>
