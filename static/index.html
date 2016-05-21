@@ -41,9 +41,7 @@ socket.on("update", function(server, data) {
 })
 
 function formatDataForGraph(data, property) {
-	//console.log(data);
 	return data.map(function(d) {
-		console.log(d);
 		return {x: new Date(d.timestamp), y: d.data[property] }
 	});
 }
@@ -76,12 +74,49 @@ setInterval(function() {
 				{
 					type: "spline",
 					showInLegend: true,
-					dataPoints: formatDataForGraph(recentServerInfo[server], "~tick")
+					dataPoints: formatDataForGraph(recentServerInfo[server], "~tick"),
+					name: "ms per tick"
+				},
+				{
+					type: "spline",
+					showInLegend: true,
+					dataPoints: formatDataForGraph(recentServerInfo[server], "+-ms"),
+					name: "ms variance"
+				},
+				{
+					type: "spline",
+					showInLegend: true,
+					dataPoints: formatDataForGraph(recentServerInfo[server], "Svms"),
+					name: "ms per sim frame",
+					axisYType: "secondary"
+				},
+				{
+					type: "spline",
+					showInLegend: true,
+					dataPoints: formatDataForGraph(recentServerInfo[server], "FPS"),
+					name: "Frames per second"
 				}
 			],
+			axisY: { title: "ms"},
+			axisY2: { title: "ms"},
 			legend: {
 				cursor: "pointer",
-			}
+			},
+			toolTip: {
+		        shared: true,
+		        content: function(e){
+		          var body ;
+		          var head ;
+		          head = "<span style = 'color:DodgerBlue; '><strong>"+ (e.entries[0].dataPoint.x)  + " ms</strong></span><br/>";
+
+		          body = [];
+		          for (var i = 0; i < e.entries.length; i++) {
+					body.push( "<span style= 'color:"+e.entries[i].dataSeries.color + "'> " + e.entries[i].dataSeries.name + "</span>: <strong>"+  e.entries[i].dataPoint.y + "</strong>  ms");
+		          }
+
+		          return (head.concat(body.join("<br />")));
+		        }
+		      }
 		});
 		chart.render();
 	}
