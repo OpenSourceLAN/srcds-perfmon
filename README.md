@@ -22,3 +22,10 @@ A recent version of node. Written and tested with node v5.7.1
 npm install 
 node index.js
 ```
+
+# Demo
+
+No demo, but here's an image of it in action, monitoring 4 servers:
+
+![image](https://raw.githubusercontent.com/opensourcelan/srcds-perfmon/master/images/srcds-perfmon.png)
+
