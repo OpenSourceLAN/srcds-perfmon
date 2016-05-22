@@ -83,14 +83,14 @@ setInterval(function() {
 					type: "spline",
 					showInLegend: true,
 					dataPoints: formatDataForGraph(recentServerInfo[server], "Svms"),
-					name: "ms per sim frame",
-					axisYType: "secondary"
+					name: "ms per sim frame"
 				},
 				{
 					type: "spline",
 					showInLegend: true,
 					dataPoints: formatDataForGraph(recentServerInfo[server], "FPS"),
-					name: "Frames per second"
+					name: "Frames per second",
+					axisYType: "secondary"
 				}
 			];
 
