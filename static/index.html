@@ -4,16 +4,12 @@
 	<style type='text/css'>
 		#charts div {
 			float: left;
-			height: 400px;
-			width: 600px;
-			display: block;
-
 		}
 	</style>
 </head>
 
 <body>
-
+<div><a href="https://www.reddit.com/r/GlobalOffensive/comments/23zt18/explanation_of_the_new_net_graph_thanks_vitaliy/">A brief explanation of what these vars mean</a></div>
 <div id="charts"></div>
 
 <script type="text/javascript" src="/socket.io/socket.io.js"></script>
@@ -37,7 +33,6 @@ function pushNewServerStat(server, data) {
 socket.on("update", function(server, data) {
 	receivedUpdate = true;
 	pushNewServerStat(server, data);
-	//console.log(server, data);
 })
 
 function formatDataForGraph(data, property) {
@@ -50,6 +45,8 @@ var sanitiser = /[\.:]/g;
 function getGraphId(name) {
 	return name.replace(sanitiser, "_");
 }
+
+var graphs = {};
 
 setInterval(function() {
 	if (!receivedUpdate) {
@@ -64,13 +61,12 @@ setInterval(function() {
 
 		var graphDiv = graphContainer.children("#" + id);
 		if (graphDiv.length == 0) {
-			graphDiv = $("<div>", {id: id});
+			// need to set height+weidth here, not CSS, otherwise tooltip doesn't work
+			graphDiv = $("<div>", {id: id, width: "600", height: "400"});
 			graphContainer.append(graphDiv);
 		}
-//console.log(formatDataForGraph(recentServerInfo[server], "~tick"));
-		var chart = new CanvasJS.Chart(id, {
-			title: { text: "Server " + server + " performance" },
-			data: [
+
+		var data =  [
 				{
 					type: "spline",
 					showInLegend: true,
@@ -96,29 +92,38 @@ setInterval(function() {
 					dataPoints: formatDataForGraph(recentServerInfo[server], "FPS"),
 					name: "Frames per second"
 				}
-			],
-			axisY: { title: "ms"},
-			axisY2: { title: "ms"},
-			legend: {
-				cursor: "pointer",
-			},
-			toolTip: {
-		        shared: true,
-		        content: function(e){
-		          var body ;
-		          var head ;
-		          head = "<span style = 'color:DodgerBlue; '><strong>"+ (e.entries[0].dataPoint.x)  + " ms</strong></span><br/>";
+			];
 
-		          body = [];
-		          for (var i = 0; i < e.entries.length; i++) {
-					body.push( "<span style= 'color:"+e.entries[i].dataSeries.color + "'> " + e.entries[i].dataSeries.name + "</span>: <strong>"+  e.entries[i].dataPoint.y + "</strong>  ms");
-		          }
+		if (graphs[id]) {
+			graphs[id].options.data = data;
+		} else {
+			graphs[id] = new CanvasJS.Chart(id, {
+				title: { text: "Server " + server + " performance" },
+				data: data,
+				axisY: { title: "ms"},
+				axisY2: { title: "ms"},
+				legend: {
+					cursor: "pointer",
+				},
+				toolTip: {
+					enabled: true,
+			        shared: true,
+			        content: function(e){
+			          var body ;
+			          var head ;
+			          head = "<span style = 'color:DodgerBlue; '><strong>"+ (e.entries[0].dataPoint.x)  + " ms</strong></span><br/>";
 
-		          return (head.concat(body.join("<br />")));
-		        }
-		      }
-		});
-		chart.render();
+			          body = [];
+			          for (var i = 0; i < e.entries.length; i++) {
+						body.push( "<span style= 'color:"+e.entries[i].dataSeries.color + "'> " + e.entries[i].dataSeries.name + "</span>: <strong>"+  e.entries[i].dataPoint.y + "</strong>  ms");
+			          }
+
+			          return (head.concat(body.join("<br />")));
+			        }
+			      }
+			});
+		}
+		graphs[id].render();
 	}
 }, 1000);
 
